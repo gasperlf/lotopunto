@@ -14,7 +14,7 @@ import java.util.Date;
  */
 @Data
 @Builder
-public class LotoResponse {
+public class PersonResponse {
 
     @JsonProperty("identificacion")
     private BigInteger identificacion;

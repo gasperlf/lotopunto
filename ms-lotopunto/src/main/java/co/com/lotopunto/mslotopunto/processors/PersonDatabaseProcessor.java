@@ -1,18 +1,11 @@
 package co.com.lotopunto.mslotopunto.processors;
 
-import co.com.lotopunto.mslotopunto.entities.PersonLoto;
-import co.com.lotopunto.mslotopunto.repositories.PersonLotoRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import co.com.lotopunto.mslotopunto.entities.Person;
+import co.com.lotopunto.mslotopunto.repositories.PersonRepository;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.math.BigInteger;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -20,21 +13,24 @@ import java.util.stream.Collectors;
 /**
  * That component read data from db and check data that is coming from sheet.
  * @author jhovannycanas.
- * @see PersonLotoRepository
- * @see PersonLoto
+ * @see PersonRepository
+ * @see Person
  */
 @Component
-public class PersonLotoDatabaseProcessor implements Processor {
+public class PersonDatabaseProcessor implements Processor {
 
-    @Autowired
-    private PersonLotoRepository personLotoRepository;
+    private final PersonRepository personRepository;
+
+    public PersonDatabaseProcessor(PersonRepository personRepository) {
+        this.personRepository = personRepository;
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
 
-        List<PersonLoto> personLotos = (List<PersonLoto>) exchange.getIn().getBody();
-        personLotos = personLotos.parallelStream().map(t -> {
-            Optional<PersonLoto> personLoto =  personLotoRepository.findByIdentificacion(t.getIdentificacion());
+        List<Person> people = (List<Person>) exchange.getIn().getBody();
+        people = people.parallelStream().map(t -> {
+            Optional<Person> personLoto =  personRepository.findByIdentificacion(t.getIdentificacion());
             if (personLoto.isPresent()){
                 return personLoto.get();
             }
@@ -48,7 +44,7 @@ public class PersonLotoDatabaseProcessor implements Processor {
             }
             return personLoto;
         }).collect(Collectors.toList());
-        exchange.getIn().setBody(personLotos);
+        exchange.getIn().setBody(people);
     }
 
 }

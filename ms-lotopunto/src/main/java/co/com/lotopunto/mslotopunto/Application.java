@@ -9,20 +9,20 @@ import org.springframework.context.annotation.Bean;
 /**
  * main class to run api.
  * @author jhovannycanas
- * @see MsLotopuntoApplication
+ * @see Application
  * @see SpringBootApplication
  * @see ServletRegistrationBean
  */
 @SpringBootApplication
-public class MsLotopuntoApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MsLotopuntoApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean() {
-		ServletRegistrationBean register = new ServletRegistrationBean(new CamelHttpTransportServlet(), "/loto/v1/*");
+		ServletRegistrationBean register = new ServletRegistrationBean(new CamelHttpTransportServlet(), "/persons/v1/*");
 		register.setName("CamelServlet");
 		return register;
 	}

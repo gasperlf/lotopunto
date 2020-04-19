@@ -1,10 +1,9 @@
 package co.com.lotopunto.mslotopunto.processors;
 
-import co.com.lotopunto.mslotopunto.entities.PersonLoto;
-import co.com.lotopunto.mslotopunto.repositories.PersonLotoRepository;
+import co.com.lotopunto.mslotopunto.entities.Person;
+import co.com.lotopunto.mslotopunto.repositories.PersonRepository;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,24 +11,27 @@ import java.util.stream.Collectors;
 /**
  * That component read data from db and sheet check which must be to deleted.
  * @author jhovannycanas.
- * @see PersonLotoRepository
- * @see PersonLoto
+ * @see PersonRepository
+ * @see Person
  */
 
 @Component
-public class PersonLotoSpreadSheetProcessor implements Processor {
+public class PersonSpreadSheetProcessor implements Processor {
 
-    @Autowired
-    private PersonLotoRepository personLotoRepository;
+    private final PersonRepository personRepository;
+
+    public PersonSpreadSheetProcessor(PersonRepository personRepository) {
+        this.personRepository = personRepository;
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
 
-        List<PersonLoto> personLotosSpreadSheet = (List<PersonLoto>) exchange.getIn().getBody();
-        List<PersonLoto> personLotosDatabase = personLotoRepository.findAllActive();
+        List<Person> personLotosSpreadSheet = (List<Person>) exchange.getIn().getBody();
+        List<Person> personLotosDatabase = personRepository.findAllActive();
 
-        List<PersonLoto> personLotos = personLotosDatabase.parallelStream().map(t -> {
-            for (PersonLoto personLoto: personLotosSpreadSheet) {
+        List<Person> people = personLotosDatabase.parallelStream().map(t -> {
+            for (Person personLoto: personLotosSpreadSheet) {
                 if (personLoto.getIdentificacion().equals(t.getIdentificacion())){
                     t.setEstado("E");
                 }
@@ -40,6 +42,6 @@ public class PersonLotoSpreadSheetProcessor implements Processor {
                     personLoto.setEstado("I");
                 return personLoto;})
                 .collect(Collectors.toList());
-        exchange.getIn().setBody(personLotos);
+        exchange.getIn().setBody(people);
     }
 }

@@ -1,12 +1,11 @@
 package co.com.lotopunto.mslotopunto.processors;
 
-import co.com.lotopunto.mslotopunto.entities.PersonLoto;
-import co.com.lotopunto.mslotopunto.repositories.PersonLotoRepository;
+import co.com.lotopunto.mslotopunto.entities.Person;
+import co.com.lotopunto.mslotopunto.repositories.PersonRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigInteger;
@@ -20,40 +19,44 @@ import java.util.stream.Collectors;
 /**
  * That component read the sheet and become all rows in objects.
  * @author jhovannycanas.
- * @see PersonLotoRepository
+ * @see PersonRepository
  * @see ObjectMapper
- * @see PersonLoto
+ * @see Person
  */
 @Component
-public class ApiSpreadsheetProcessor implements Processor {
+public class SpreadsheetProcessor implements Processor {
 
-    @Autowired
-    private PersonLotoRepository personLotoRepository;
+    private final PersonRepository personRepository;
 
     private ObjectMapper maper = new ObjectMapper();
+
+    public SpreadsheetProcessor(PersonRepository personRepository) {
+        this.personRepository = personRepository;
+    }
+
     @Override
     public void process(Exchange exchange) throws Exception {
 
         DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
         JsonNode jsonNode = maper.readTree((String)exchange.getIn().getBody());
         JsonNode valuesCell =  jsonNode.get("values");
-        List<PersonLoto> personLotos = new ArrayList<>();
+        List<Person> people = new ArrayList<>();
         for (JsonNode value:valuesCell) {
-            personLotos.add(PersonLoto.builder().identificacion(BigInteger.valueOf(value.get(0).asLong()))
+            people.add(Person.builder().identificacion(BigInteger.valueOf(value.get(0).asLong()))
                     .nombre(value.get(1).asText()).fechaNacimiento(format.parse(value.get(2).asText()))
                     .sumaVariable(concatenate(value.get(0).asText(),value.get(2).asText()))
                     .estado("")
                     .build());
         }
 
-        personLotos = personLotos.parallelStream().map(t -> {
+        people = people.parallelStream().map(t -> {
             t.setConcatenado(t.getNombre().concat("_").concat(t.getSumaVariable().toString()));
             t.setEstado("A");
             t.setFechaCreacion(new Date());
             return t;
         }).collect(Collectors.toList());
 
-        exchange.getIn().setBody(personLotos);
+        exchange.getIn().setBody(people);
     }
 
     private Integer concatenate(String cellIdentification, String cellDate) {

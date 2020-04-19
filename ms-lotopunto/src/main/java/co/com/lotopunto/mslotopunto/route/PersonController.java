@@ -1,36 +1,39 @@
 package co.com.lotopunto.mslotopunto.route;
 
-import co.com.lotopunto.mslotopunto.dto.LotoResponse;
-import co.com.lotopunto.mslotopunto.entities.PersonLoto;
-import co.com.lotopunto.mslotopunto.processors.ApiSpreadsheetProcessor;
-import co.com.lotopunto.mslotopunto.processors.PersonLotoDatabaseProcessor;
-import co.com.lotopunto.mslotopunto.processors.PersonLotoSpreadSheetProcessor;
-import co.com.lotopunto.mslotopunto.services.LotoPuntoService;
+import co.com.lotopunto.mslotopunto.dto.PersonResponse;
+import co.com.lotopunto.mslotopunto.entities.Person;
+import co.com.lotopunto.mslotopunto.processors.SpreadsheetProcessor;
+import co.com.lotopunto.mslotopunto.processors.PersonDatabaseProcessor;
+import co.com.lotopunto.mslotopunto.processors.PersonSpreadSheetProcessor;
+import co.com.lotopunto.mslotopunto.services.PersonService;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class lotoRoute extends RouteBuilder {
+public class PersonController extends RouteBuilder {
 
-    @Autowired
-    private ApiSpreadsheetProcessor apiSpreadsheetProcessor;
+    private final SpreadsheetProcessor spreadsheetProcessor;
 
-    @Autowired
-    private PersonLotoDatabaseProcessor personLotoDatabaseProcessor;
+    private final PersonDatabaseProcessor personDatabaseProcessor;
 
-    @Autowired
-    private PersonLotoSpreadSheetProcessor personLotoSpreadSheetProcessor;
+    private final PersonSpreadSheetProcessor personSpreadSheetProcessor;
 
-    @Autowired
-    private LotoPuntoService lotoPuntoService;
+    private final PersonService personService;
+
+    public PersonController(SpreadsheetProcessor spreadsheetProcessor, PersonDatabaseProcessor personDatabaseProcessor,
+                            PersonSpreadSheetProcessor personSpreadSheetProcessor, PersonService personService) {
+        this.spreadsheetProcessor = spreadsheetProcessor;
+        this.personDatabaseProcessor = personDatabaseProcessor;
+        this.personSpreadSheetProcessor = personSpreadSheetProcessor;
+        this.personService = personService;
+    }
 
     @Override
     public void configure() throws Exception {
@@ -59,12 +62,12 @@ public class lotoRoute extends RouteBuilder {
 
         .get("/persons")
                 .description("consult all persons the lotus point")
-                .outType(LotoResponse[].class)
+                .outType(PersonResponse[].class)
                 .responseMessage().code(200).message("OK").endResponseMessage()
                 .responseMessage().code(404).message("The resource was not found").endResponseMessage()
                 .responseMessage().code(500).message("Error generating the query").endResponseMessage()
                 .route().streamCaching()
-                .bean(lotoPuntoService, "getAllLoto")
+                .bean(personService, "getAllLoto")
                 .endRest();
 
         from("google-sheets-stream://spreadsheets?accessToken={{google-sheets.token}}" +
@@ -72,7 +75,7 @@ public class lotoRoute extends RouteBuilder {
                 "&range=Sheet1!A2:C&refreshToken={{google-sheets.refresh-token}}")
                 .convertBodyTo(String.class)
                 .log("${body}")
-                .bean(apiSpreadsheetProcessor)
+                .bean(spreadsheetProcessor)
                 .to("direct:multicasting");
 
                 from("direct:multicasting").multicast(new AggregationStrategy() {
@@ -82,9 +85,9 @@ public class lotoRoute extends RouteBuilder {
                             return newExchange;
                         }
 
-                        List<PersonLoto> listPersonAll = new ArrayList<>();
-                        List<PersonLoto> listPersonOld = (List<PersonLoto>) oldExchange.getIn().getBody();
-                        List<PersonLoto> listPersonNew = (List<PersonLoto>) newExchange.getIn().getBody();
+                        List<Person> listPersonAll = new ArrayList<>();
+                        List<Person> listPersonOld = (List<Person>) oldExchange.getIn().getBody();
+                        List<Person> listPersonNew = (List<Person>) newExchange.getIn().getBody();
                         listPersonAll.addAll(listPersonOld);
                         listPersonAll.addAll(listPersonNew);
 
@@ -95,12 +98,12 @@ public class lotoRoute extends RouteBuilder {
                 .end().process(new Processor() {
             @Override
             public void process(Exchange exchange) throws Exception {
-                List<PersonLoto> personLotos = (List<PersonLoto>) exchange.getIn().getBody();
-                lotoPuntoService.saveLotoPersona(personLotos);
+                List<Person> people = (List<Person>) exchange.getIn().getBody();
+                personService.saveLotoPersona(people);
             }
         }).log("Save loto punto person").end();
 
-        from("direct:personlotodatabase").streamCaching().bean(personLotoDatabaseProcessor).end();
-        from("direct:personlotospreadsheet").streamCaching().bean(personLotoSpreadSheetProcessor).end();
+        from("direct:personlotodatabase").streamCaching().bean(personDatabaseProcessor).end();
+        from("direct:personlotospreadsheet").streamCaching().bean(personSpreadSheetProcessor).end();
     }
 }

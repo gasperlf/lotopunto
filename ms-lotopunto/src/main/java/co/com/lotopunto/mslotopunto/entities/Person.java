@@ -17,7 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PersonLoto {
+public class Person {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
