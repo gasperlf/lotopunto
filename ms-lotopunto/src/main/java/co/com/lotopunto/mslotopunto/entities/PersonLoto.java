@@ -6,6 +6,10 @@ import javax.persistence.*;
 import java.math.BigInteger;
 import java.util.Date;
 
+/**
+ * Entity to respresent a person in db.
+ * @author jhovannycanas
+ */
 @Table(schema = "loto",name = "loto_tbl_persona_loto")
 @Entity
 @Getter

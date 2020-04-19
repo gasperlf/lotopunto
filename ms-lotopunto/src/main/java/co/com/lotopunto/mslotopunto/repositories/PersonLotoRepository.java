@@ -10,6 +10,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Component to access to db.
+ * @author jhovannycanas
+ * @see PersonLoto
+ */
 public interface PersonLotoRepository extends JpaRepository<PersonLoto, Integer> {
 
     @Query("SELECT T FROM PersonLoto T WHERE T.identificacion=:identificacion and T.nombre=:nombre AND T.fechaNacimiento=:fechaNacimiento")

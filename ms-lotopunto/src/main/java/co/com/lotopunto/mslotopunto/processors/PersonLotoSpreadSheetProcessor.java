@@ -9,6 +9,13 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * That component read data from db and sheet check which must be to deleted.
+ * @author jhovannycanas.
+ * @see PersonLotoRepository
+ * @see PersonLoto
+ */
+
 @Component
 public class PersonLotoSpreadSheetProcessor implements Processor {
 

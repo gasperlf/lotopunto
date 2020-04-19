@@ -17,6 +17,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * That component read the sheet and become all rows in objects.
+ * @author jhovannycanas.
+ * @see PersonLotoRepository
+ * @see ObjectMapper
+ * @see PersonLoto
+ */
 @Component
 public class ApiSpreadsheetProcessor implements Processor {
 
@@ -38,7 +45,6 @@ public class ApiSpreadsheetProcessor implements Processor {
                     .estado("")
                     .build());
         }
-
 
         personLotos = personLotos.parallelStream().map(t -> {
             t.setConcatenado(t.getNombre().concat("_").concat(t.getSumaVariable().toString()));

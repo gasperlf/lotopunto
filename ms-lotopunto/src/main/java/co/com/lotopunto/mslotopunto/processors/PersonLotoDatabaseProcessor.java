@@ -17,7 +17,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+/**
+ * That component read data from db and check data that is coming from sheet.
+ * @author jhovannycanas.
+ * @see PersonLotoRepository
+ * @see PersonLoto
+ */
 @Component
 public class PersonLotoDatabaseProcessor implements Processor {
 

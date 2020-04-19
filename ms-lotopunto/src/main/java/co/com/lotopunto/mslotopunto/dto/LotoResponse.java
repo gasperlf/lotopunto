@@ -8,6 +8,10 @@ import lombok.Data;
 import java.math.BigInteger;
 import java.util.Date;
 
+/**
+ * Dto for person.
+ * @author jhovannycanas
+ */
 @Data
 @Builder
 public class LotoResponse {

@@ -6,6 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 
+/**
+ * main class to run api.
+ * @author jhovannycanas
+ * @see MsLotopuntoApplication
+ * @see SpringBootApplication
+ * @see ServletRegistrationBean
+ */
 @SpringBootApplication
 public class MsLotopuntoApplication {
 

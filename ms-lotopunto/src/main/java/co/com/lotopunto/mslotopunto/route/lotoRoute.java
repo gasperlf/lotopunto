@@ -57,8 +57,8 @@ public class lotoRoute extends RouteBuilder {
                 .consumes("application/json")
                 .produces("application/json")
 
-        .get("/lotopuntos")
-                .description("consult all the lotus point")
+        .get("/persons")
+                .description("consult all persons the lotus point")
                 .outType(LotoResponse[].class)
                 .responseMessage().code(200).message("OK").endResponseMessage()
                 .responseMessage().code(404).message("The resource was not found").endResponseMessage()
