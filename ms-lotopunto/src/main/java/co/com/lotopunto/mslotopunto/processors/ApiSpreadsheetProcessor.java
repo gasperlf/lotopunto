@@ -35,8 +35,10 @@ public class ApiSpreadsheetProcessor implements Processor {
             personLotos.add(PersonLoto.builder().identificacion(BigInteger.valueOf(value.get(0).asLong()))
                     .nombre(value.get(1).asText()).fechaNacimiento(format.parse(value.get(2).asText()))
                     .sumaVariable(concatenate(value.get(0).asText(),value.get(2).asText()))
+                    .estado("")
                     .build());
         }
+
 
         personLotos = personLotos.parallelStream().map(t -> {
             t.setConcatenado(t.getNombre().concat("_").concat(t.getSumaVariable().toString()));
@@ -45,7 +47,7 @@ public class ApiSpreadsheetProcessor implements Processor {
             return t;
         }).collect(Collectors.toList());
 
-        personLotoRepository.saveAll(personLotos);
+        exchange.getIn().setBody(personLotos);
     }
 
     private Integer concatenate(String cellIdentification, String cellDate) {

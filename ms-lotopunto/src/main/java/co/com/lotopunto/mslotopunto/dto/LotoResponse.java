@@ -12,7 +12,7 @@ import java.util.Date;
 @Builder
 public class LotoResponse {
 
-    @JsonProperty("consecutivo_dane")
+    @JsonProperty("identificacion")
     private BigInteger identificacion;
 
     @JsonProperty("nombre")

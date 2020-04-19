@@ -1,8 +1,9 @@
-package co.com.lotopunto.mslotopunto.services;
+package co.com.lotopunto.mslotopunto.services.impl;
 
 import co.com.lotopunto.mslotopunto.dto.LotoResponse;
 import co.com.lotopunto.mslotopunto.entities.PersonLoto;
 import co.com.lotopunto.mslotopunto.repositories.PersonLotoRepository;
+import co.com.lotopunto.mslotopunto.services.LotoPuntoService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class LotoPuntoServiceImpl implements LotoPuntoService {
 
     @Override
     public List<LotoResponse> getAllLoto() {
-        List<PersonLoto> personLotos = personLotoRepository.findAll();
+        List<PersonLoto> personLotos = personLotoRepository.findAllActive();
         if (personLotos.isEmpty()) {
             return null;
         }
@@ -30,5 +31,10 @@ public class LotoPuntoServiceImpl implements LotoPuntoService {
                         .fechaNacimiento(t.getFechaNacimiento()).concatenado(t.getConcatenado())
                         .sumaVariable(t.getSumaVariable()).fechaCrecion(t.getFechaCreacion()).build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void saveLotoPersona(List<PersonLoto> personLotos) {
+        personLotoRepository.saveAll(personLotos);
     }
 }

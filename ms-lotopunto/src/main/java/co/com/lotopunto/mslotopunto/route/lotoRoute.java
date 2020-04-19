@@ -1,18 +1,33 @@
 package co.com.lotopunto.mslotopunto.route;
 
 import co.com.lotopunto.mslotopunto.dto.LotoResponse;
+import co.com.lotopunto.mslotopunto.entities.PersonLoto;
 import co.com.lotopunto.mslotopunto.processors.ApiSpreadsheetProcessor;
+import co.com.lotopunto.mslotopunto.processors.PersonLotoDatabaseProcessor;
+import co.com.lotopunto.mslotopunto.processors.PersonLotoSpreadSheetProcessor;
 import co.com.lotopunto.mslotopunto.services.LotoPuntoService;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
+import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class lotoRoute extends RouteBuilder {
 
     @Autowired
     private ApiSpreadsheetProcessor apiSpreadsheetProcessor;
+
+    @Autowired
+    private PersonLotoDatabaseProcessor personLotoDatabaseProcessor;
+
+    @Autowired
+    private PersonLotoSpreadSheetProcessor personLotoSpreadSheetProcessor;
 
     @Autowired
     private LotoPuntoService lotoPuntoService;
@@ -58,6 +73,34 @@ public class lotoRoute extends RouteBuilder {
                 .convertBodyTo(String.class)
                 .log("${body}")
                 .bean(apiSpreadsheetProcessor)
-                .to("mock:result");
+                .to("direct:multicasting");
+
+                from("direct:multicasting").multicast(new AggregationStrategy() {
+                    @Override
+                    public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
+                        if (oldExchange == null) {
+                            return newExchange;
+                        }
+
+                        List<PersonLoto> listPersonAll = new ArrayList<>();
+                        List<PersonLoto> listPersonOld = (List<PersonLoto>) oldExchange.getIn().getBody();
+                        List<PersonLoto> listPersonNew = (List<PersonLoto>) newExchange.getIn().getBody();
+                        listPersonAll.addAll(listPersonOld);
+                        listPersonAll.addAll(listPersonNew);
+
+                        oldExchange.getIn().setBody(listPersonAll);
+                        return oldExchange;
+                    }
+                }).parallelProcessing().to("direct:personlotodatabase", "direct:personlotospreadsheet")
+                .end().process(new Processor() {
+            @Override
+            public void process(Exchange exchange) throws Exception {
+                List<PersonLoto> personLotos = (List<PersonLoto>) exchange.getIn().getBody();
+                lotoPuntoService.saveLotoPersona(personLotos);
+            }
+        }).log("Save loto punto person").end();
+
+        from("direct:personlotodatabase").streamCaching().bean(personLotoDatabaseProcessor).end();
+        from("direct:personlotospreadsheet").streamCaching().bean(personLotoSpreadSheetProcessor).end();
     }
 }
