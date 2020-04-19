@@ -41,7 +41,7 @@ public class PersonController extends RouteBuilder {
         restConfiguration()
                 .bindingMode(RestBindingMode.json)
                 .apiContextPath("/api")
-                .contextPath("/loto/v1")
+                .contextPath("/persons/v1")
                 .apiProperty("host", "")
                 .dataFormatProperty("prettyPrint", "true")
                 .enableCORS(true)
