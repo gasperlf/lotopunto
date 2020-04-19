@@ -12,3 +12,5 @@ Remember to have the application working so that the token can be renewed.
 
 The file "Data Source - Java Backend Test Lotus Point" is available at the following address: https://docs.google.com/spreadsheets/d/1Q6JSGvQufiLyGo-f2rj1T4NIfvfg1UR0GCT0dYjvxDA/edit?usp=sharing   
 
+the test url of the page is available at:
+http://loto-env.eba-vcpnw4fr.us-east-2.elasticbeanstalk.com/
