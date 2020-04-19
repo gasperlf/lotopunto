@@ -10,3 +10,5 @@ google-sheets.refresh-token=
 
 Remember to have the application working so that the token can be renewed.
 
+The file "Data Source - Java Backend Test Lotus Point" is available at the following address: https://docs.google.com/spreadsheets/d/1Q6JSGvQufiLyGo-f2rj1T4NIfvfg1UR0GCT0dYjvxDA/edit?usp=sharing   
+
