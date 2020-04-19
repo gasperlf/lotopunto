@@ -1,0 +1,21 @@
+<table>
+
+    <thead>
+        <tr>
+            <th>Identificación</th>
+            <th>Nombre</th>
+            <th>Fecha nacimiento</th>
+            <th>Suma de variable</th>
+            <th>Concatenado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let item of data$">
+            <td>{{item.identificacion}}</td>
+            <td>{{item.nombre}}</td>
+            <td>{{item.fecha_creacion}}</td>
+            <td>{{item.suma_variable}}</td>
+            <td>{{item.concatenado}}</td>
+        </tr>
+    </tbody>
+</table>
